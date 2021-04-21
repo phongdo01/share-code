@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <title>Phong' share code</title>
+</head>
+
+<body>
+    <div class="container">
+        <div class="col-md-12">
+            <button class="btn btn-primary d-block" id='export'>Export</button>
+            <!-- <a class="btn btn-primary d-block col-md-1" id='export' href="/stylesheets/style.css" download>Export</a> -->
+            <textarea id="code-area" name="code-area" rows="20" cols="100" class="mt-1 form-control">
+
+      </textarea>
+        </div>
+    </div>
+</body>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdn.socket.io/3.1.3/socket.io.min.js"
+    integrity="sha384-cPwlPLvBTa3sKAgddT6krw0cJat7egBga3DJepJyrLl4Q9/5WLra3rrnMcyTyOnh"
+    crossorigin="anonymous"></script>
+<script>
+    const socket = io('');
+    socket.on('connect', () => {
+        console.log(socket.id)
+    });
+    // receive new code from other
+    socket.on('get-new-code', textValue => {
+        $('#code-area').val(textValue);
+    });
+    // export file .c
+    $('#export').on('click', async () => {
+        const content = $('#code-area').val();
+        const name = prompt('Type your name of file');
+        // const data = await $.get(`files/create-file/${name}/${content}`);
+        const aTag = document.createElement('a');
+        aTag.setAttribute('href', 'data: text/plain; charset=utf-8,'+encodeURIComponent(content));
+        aTag.setAttribute('download', name);
+        aTag.style.display = 'none';
+        document.body.appendChild(aTag, name);
+        aTag.click();
+        document.body.removeChild(aTag);
+    });
+    //handle when change the code
+    $('#code-area').change(function () {
+        const textValue = this.value;
+        socket.emit('change-code', textValue);
+    });
+</script>
+
+</html>
